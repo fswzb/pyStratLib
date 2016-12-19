@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from PyFin.DateUtilities import Date
-from utils import date
+import pandas as pd
+from utils import datemath
 
-def get_report_date(actDate):
+def getReportDate(actDate):
     """
     Args:
         act_date: str/datetime, 任意日期
@@ -13,7 +14,7 @@ def get_report_date(actDate):
     """
 
     if isinstance(actDate, str):
-        actDate = date.stringToDatetime(actDate)
+        actDate = datemath.stringToDatetime(actDate)
     actMonth = actDate.month
     actYear = actDate.year
     if 1 <= actMonth <= 3:# 第一季度使用去年三季报的数据
@@ -34,3 +35,57 @@ def get_report_date(actDate):
         day = 30
     ret = Date(year, month, day)
     return str(ret)
+
+
+def getUniverseSingleFactor(path):
+    """
+    Args:
+        path:  str, path of csv file, col =[datetime, secid, factor]
+
+    Returns: pd.Series, multiindex =[datetime, secid] value = factor
+
+    """
+    factor = pd.read_csv(path)
+    factor.columns = ['tradeDate', 'secID','factor']
+    factor['tradeDate'] = pd.to_datetime(factor['tradeDate'], format='%Y%m%d')
+    factor = factor.dropna()
+    factor = factor[factor['secID'].str.contains(r'^[^<A>]+$$')] #去除类似AXXXX的代码(IPO终止)
+    index = pd.MultiIndex.from_arrays([factor['tradeDate'].values, factor['secID'].values], names=['tradeDate','secID'])
+    ret = pd.Series(factor['factor'].values, index=index, name='factor')
+    return ret
+
+def adjustFactorDate(factorRaw, startDate, endDate, freq='M'):
+    """
+    Args:
+        factorRaw: pd.DataFrame, multiindex =['tradeDate','secID']
+        startDate: str, start date of factor data
+        endDate:  str, end date of factor data
+        freq: str, optional
+
+    Returns: pd.Series, multiindex =[datetime, secid]
+    此函数的主要目的是 把原始以报告日为对应日期的因子数据 改成 调仓日为日期（读取对应报告日数据）
+    """
+
+    # 获取调仓日日期
+    if freq == 'M':
+        tiaocangDate = datemath.getPosAdjDate(startDate, endDate)
+    else:
+        raise NotImplementedError
+    reportDate = [getReportDate(date) for date in tiaocangDate]
+    ret = pd.Series()
+    for i in range(len(tiaocangDate)):
+        query = factorRaw.loc[factorRaw.index.get_level_values('tradeDate')== reportDate[i]]
+        query = query.reset_index().drop('tradeDate',axis=1)
+        query['tiaoCangDate'] = [tiaocangDate[i]] * query['secID'].count()
+        ret = pd.concat([ret, query], axis=0)
+
+    # 清理列
+    ret = ret[['tiaoCangDate', 'secID','factor']]
+    index = pd.MultiIndex.from_arrays([ret['tiaoCangDate'].values, ret['secID'].values], names=['tiaoCangDate','secID'])
+    ret = pd.Series(ret['factor'].values, index=index, name='factor')
+    return ret
+
+if __name__ == "__main__":
+    path = '..//..//data//net_asset.csv'
+    factorRaw = getUniverseSingleFactor(path)
+    print adjustFactorDate(factorRaw, '2015-01-05','2015-12-01')

@@ -42,7 +42,7 @@ def getPosAdjDate(startDate, endDate, format="%Y-%m-%d", calendar='China.SSE'):
                      dEndDate,
                      Period(1, TimeUnits.Months),
                      cal,
-                     BizDayConventions.ModifiedPreceding)
+                     BizDayConventions.Preceding)
     # it fails if setting dStartDate to be first adjustment date, then use Schedule to compute the others
     # so i first compute dates list in each period, then compute the last date of each period
     # last day of that period(month) is the pos adjustment date

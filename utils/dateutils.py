@@ -19,7 +19,7 @@ def stringToDatetime(strDate, format="%Y-%m-%d"):
     """
     return dt.datetime.strptime(strDate, format)
 
-def getPosAdjDate(startDate, endDate, format="%Y-%m-%d", calendar='China.SSE'):
+def getPosAdjDate(startDate, endDate, format="%Y-%m-%d", calendar='China.SSE', freq=TimeUnits.Months):
     """
     Args:
         startDate: str, start date of strategy
@@ -40,7 +40,7 @@ def getPosAdjDate(startDate, endDate, format="%Y-%m-%d", calendar='China.SSE'):
     cal = Calendar(calendar)
     posAdjustDate = Schedule(dStartDate,
                      dEndDate,
-                     Period(1, TimeUnits.Months),
+                     Period(1, freq),
                      cal,
                      BizDayConventions.Preceding)
     # it fails if setting dStartDate to be first adjustment date, then use Schedule to compute the others

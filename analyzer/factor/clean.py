@@ -1,7 +1,9 @@
 # -*- coding: utf-8 -*-
 from PyFin.DateUtilities import Date
+from PyFin.Enums import TimeUnits
 import pandas as pd
 from utils import dateutils
+
 
 def getReportDate(actDate):
     """
@@ -54,7 +56,7 @@ def getUniverseSingleFactor(path):
     ret = pd.Series(factor['factor'].values, index=index, name='factor')
     return ret
 
-def adjustFactorDate(factorRaw, startDate, endDate, freq='M'):
+def adjustFactorDate(factorRaw, startDate, endDate, freq=TimeUnits.Months):
     """
     Args:
         factorRaw: pd.DataFrame, multiindex =['tradeDate','secID']
@@ -67,14 +69,11 @@ def adjustFactorDate(factorRaw, startDate, endDate, freq='M'):
     """
 
     # 获取调仓日日期
-    if freq == 'M':
-        tiaocangDate = dateutils.getPosAdjDate(startDate, endDate)
-    else:
-        raise NotImplementedError
+    tiaocangDate = dateutils.getPosAdjDate(startDate, endDate, freq=freq)
     reportDate = [getReportDate(date) for date in tiaocangDate]
     ret = pd.Series()
     for i in range(len(tiaocangDate)):
-        query = factorRaw.loc[factorRaw.index.get_level_values('tradeDate')== reportDate[i]]
+        query = factorRaw.loc[factorRaw.index.get_level_values('tradeDate') == reportDate[i]]
         query = query.reset_index().drop('tradeDate',axis=1)
         query['tiaoCangDate'] = [tiaocangDate[i]] * query['secID'].count()
         ret = pd.concat([ret, query], axis=0)

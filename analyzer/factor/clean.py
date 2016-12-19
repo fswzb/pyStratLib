@@ -1,7 +1,7 @@
 # -*- coding: utf-8 -*-
 from PyFin.DateUtilities import Date
 import pandas as pd
-from utils import datemath
+from utils import dateutils
 
 def getReportDate(actDate):
     """
@@ -14,7 +14,7 @@ def getReportDate(actDate):
     """
 
     if isinstance(actDate, str):
-        actDate = datemath.stringToDatetime(actDate)
+        actDate = dateutils.stringToDatetime(actDate)
     actMonth = actDate.month
     actYear = actDate.year
     if 1 <= actMonth <= 3:# 第一季度使用去年三季报的数据
@@ -68,7 +68,7 @@ def adjustFactorDate(factorRaw, startDate, endDate, freq='M'):
 
     # 获取调仓日日期
     if freq == 'M':
-        tiaocangDate = datemath.getPosAdjDate(startDate, endDate)
+        tiaocangDate = dateutils.getPosAdjDate(startDate, endDate)
     else:
         raise NotImplementedError
     reportDate = [getReportDate(date) for date in tiaocangDate]

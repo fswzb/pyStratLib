@@ -1,8 +1,9 @@
 # -*- coding: utf-8 -*-
 from PyFin.DateUtilities import Date
-from PyFin.Enums import TimeUnits
 import pandas as pd
 from utils import dateutils
+
+
 
 
 def getReportDate(actDate):
@@ -56,15 +57,16 @@ def getUniverseSingleFactor(path):
     ret = pd.Series(factor['factor'].values, index=index, name='factor')
     return ret
 
-def adjustFactorDate(factorRaw, startDate, endDate, freq=TimeUnits.Months):
+def adjustFactorDate(factorRaw, startDate, endDate, freq='m', returnMultiIndex=True):
     """
     Args:
         factorRaw: pd.DataFrame, multiindex =['tradeDate','secID']
         startDate: str, start date of factor data
         endDate:  str, end date of factor data
-        freq: str, optional
+        freq: str, optional, tiaocang frequency
+        returnMultiIndex: bool, optional, determine the types of return var. True -> multiindex pd.Series, false, pd.DataFrame
 
-    Returns: pd.Series, multiindex =[datetime, secid]
+    Returns: pd.Series, multiindex =[datetime, secid] / pd.DataFrame
     此函数的主要目的是 把原始以报告日为对应日期的因子数据 改成 调仓日为日期（读取对应报告日数据）
     """
 
@@ -80,11 +82,14 @@ def adjustFactorDate(factorRaw, startDate, endDate, freq=TimeUnits.Months):
 
     # 清理列
     ret = ret[['tiaoCangDate', 'secID','factor']]
-    index = pd.MultiIndex.from_arrays([ret['tiaoCangDate'].values, ret['secID'].values], names=['tiaoCangDate','secID'])
-    ret = pd.Series(ret['factor'].values, index=index, name='factor')
+    if returnMultiIndex:
+        index = pd.MultiIndex.from_arrays([ret['tiaoCangDate'].values, ret['secID'].values], names=['tiaoCangDate','secID'])
+        ret = pd.Series(ret['factor'].values, index=index, name='factor')
+    else:
+        ret = ret.set_index(['tiaoCangDate'])
     return ret
 
 if __name__ == "__main__":
-    path = '..//..//data//net_asset.csv'
+    path = '..//..//data//factor//net_asset.csv'
     factorRaw = getUniverseSingleFactor(path)
     print adjustFactorDate(factorRaw, '2015-01-05','2015-12-01')

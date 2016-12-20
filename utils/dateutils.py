@@ -7,6 +7,11 @@ from PyFin.Enums import TimeUnits
 from PyFin.Enums import BizDayConventions
 import datetime as dt
 
+_freqDict = {'d': TimeUnits.Days,
+              'b': TimeUnits.BDays,
+              'w': TimeUnits.Weeks,
+              'm': TimeUnits.Months,
+              'y': TimeUnits.Years}
 
 def stringToDatetime(strDate, format="%Y-%m-%d"):
     """
@@ -19,7 +24,7 @@ def stringToDatetime(strDate, format="%Y-%m-%d"):
     """
     return dt.datetime.strptime(strDate, format)
 
-def getPosAdjDate(startDate, endDate, format="%Y-%m-%d", calendar='China.SSE', freq=TimeUnits.Months):
+def getPosAdjDate(startDate, endDate, format="%Y-%m-%d", calendar='China.SSE', freq='m'):
     """
     Args:
         startDate: str, start date of strategy
@@ -40,7 +45,7 @@ def getPosAdjDate(startDate, endDate, format="%Y-%m-%d", calendar='China.SSE', f
     cal = Calendar(calendar)
     posAdjustDate = Schedule(dStartDate,
                      dEndDate,
-                     Period(1, freq),
+                     Period(1, _freqDict[freq]),
                      cal,
                      BizDayConventions.Preceding)
     # it fails if setting dStartDate to be first adjustment date, then use Schedule to compute the others

@@ -4,11 +4,12 @@ import cleanData
 import pandas as pd
 
 _factorPathDict ={
-    'NAV': 'net_asset.csv', # 净资产
-    'ROE': 'ROE.csv', # 净资产收益率
-    'PE': 'PE_TTM.csv', # 市盈率
-    'TTM': 'TTM.csv', # 销售毛利率
-    'CAP': 'cap.csv' # 总市值
+    'NAV': ['..//..//data//factor//net_asset.csv', True], # 净资产
+    'ROE': ['..//..//data//factor//ROE.csv',True], # 净资产收益率
+    'PE': ['..//..//data//factor//PE_TTM.csv', True], # 市盈率
+    'TTM': ['..//..//data//factor//TTM.csv', True], # 销售毛利率
+    'CAP': ['..//..//data//factor//cap.csv', True], # 总市值
+    'RETURN': ['..//..//data//return//monthlyReturn.csv', False] #月度收益
 }
 
 
@@ -25,16 +26,16 @@ class FactorLoader(object):
         return dateutils.getPosAdjDate(self.__startDate, self.__endDate, freq=self.__freq)
 
     def getFactorData(self):
-        path = '..//..//data//factor//'
         ret = pd.Series()
         for name in self.__factorNames:
-            pathToUse = path +  _factorPathDict[name]
+            pathToUse = _factorPathDict[name][0]
+            needAdj = _factorPathDict[name][1]
             factorRaw = cleanData.getUniverseSingleFactor(pathToUse)
-            factor = cleanData.adjustFactorDate(factorRaw,self.__startDate, self.__endDate)
+            factor = cleanData.adjustFactorDate(factorRaw,self.__startDate, self.__endDate, needMapDate=needAdj)
             ret[name] = factor
         return ret
 
 if __name__ == "__main__":
-    factor = FactorLoader('2015-01-05', '2015-12-30', ['NAV', 'ROE'])
+    factor = FactorLoader('2015-01-05', '2015-12-30', ['NAV', 'ROE','RETURN'])
     ret = factor.getFactorData()
-    print ret['NAV']
+    print ret['RETURN']

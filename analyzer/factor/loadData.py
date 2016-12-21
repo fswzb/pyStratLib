@@ -37,6 +37,7 @@ class FactorLoader(object):
                 factorRaw = cleanData.getUniverseSingleFactor(pathToUse, IndexName=['tiaoCangDate','secID'])
                 factorRaw = factorRaw.loc[factorRaw.index.get_level_values('tiaoCangDate') >= self.__startDate]
                 factor = factorRaw.loc[factorRaw.index.get_level_values('tiaoCangDate') <= self.__endDate]
+            factor.name = name
             ret[name] = factor
         return ret
 

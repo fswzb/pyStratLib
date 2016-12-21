@@ -29,9 +29,14 @@ class FactorLoader(object):
         ret = pd.Series()
         for name in self.__factorNames:
             pathToUse = _factorPathDict[name][0]
-            needAdj = _factorPathDict[name][1]
-            factorRaw = cleanData.getUniverseSingleFactor(pathToUse)
-            factor = cleanData.adjustFactorDate(factorRaw,self.__startDate, self.__endDate, needMapDate=needAdj)
+            needAdjDate = _factorPathDict[name][1]
+            if needAdjDate:
+                factorRaw = cleanData.getUniverseSingleFactor(pathToUse)
+                factor = cleanData.adjustFactorDate(factorRaw, self.__startDate, self.__endDate)
+            else:
+                factorRaw = cleanData.getUniverseSingleFactor(pathToUse, IndexName=['tiaoCangDate','secID'])
+                factorRaw = factorRaw.loc[factorRaw.index.get_level_values('tiaoCangDate') >= self.__startDate]
+                factor = factorRaw.loc[factorRaw.index.get_level_values('tiaoCangDate') <= self.__endDate]
             ret[name] = factor
         return ret
 

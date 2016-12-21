@@ -39,7 +39,7 @@ def getReportDate(actDate):
     return str(ret)
 
 
-def getUniverseSingleFactor(path, startDate=None, endDate=None,IndexName=['tradeDate','secID']):
+def getUniverseSingleFactor(path, IndexName=['tradeDate','secID']):
     """
     Args:
         path:  str, path of csv file, col =[datetime, secid, factor]

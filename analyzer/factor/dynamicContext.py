@@ -28,7 +28,8 @@ class DCAMAnalyzer(object):
     def getReturn(self, secIDs, date):
         data = self.__secReturn.loc[self.__secReturn.index.get_level_values('tiaoCangDate') == date]
         data = data.loc[data.index.get_level_values('secID').isin(secIDs)]
-        return data
+        ret = pd.DataFrame(data=data.values, index=data.index.get_level_values('secID'), columns=[data.name])
+        return ret
 
     # 给定某一时间, 和股票代码列表, 返回因子列表
     def getFactor(self, secIDs, date):
@@ -36,7 +37,8 @@ class DCAMAnalyzer(object):
         for i in range(len(self.__factor)):
             data = self.__factor[i].loc[self.__factor[i].index.get_level_values('tiaoCangDate') == date]
             data = data.loc[data.index.get_level_values('secID').isin(secIDs)]
-            ret[i] = data
+            data = pd.DataFrame(data=data.values, index=data.index.get_level_values('secID'), columns=[data.name])
+            ret = pd.concat([ret, data], axis=1)
         return ret
 
 
@@ -56,9 +58,12 @@ class DCAMAnalyzer(object):
             returnsHigh = self.getReturn(groupHigh, date)     #得到当期收益序列
             factorLow = self.getFactor(groupLow, prevDate)
             factorHigh = self.getFactor(groupHigh, prevDate)      #得到上期因子序列
+            tableLow = pd.concat([returnsLow, factorLow], axis=1).dropna() #此处做一个映射,避免因子和收益数据长度不同
+            tableHigh = pd.concat([returnsHigh, factorHigh], axis=1).dropna()
+
             for k in range(len(self.__factor)):
-                tmplow,_ = st.spearmanr(returnsLow, factorLow[k])
-                tmphigh,_ = st.spearmanr(returnsHigh, factorHigh[k])
+                tmplow,_ = st.spearmanr(tableLow.columns[0], tableLow.columns[k+1])
+                tmphigh,_ = st.spearmanr(tableHigh.columns[0], tableHigh.columns[k+1])
                 low[k].append(tmplow)
                 high[k].append(tmphigh)
 

@@ -39,8 +39,8 @@ def getPosAdjDate(startDate, endDate, format="%Y-%m-%d", calendar='China.SSE', f
     dtStartDate = stringToDatetime(startDate, format)
     dtEndDate = stringToDatetime(endDate, format)
 
-    dStartDate = Date(dtStartDate.year, dtStartDate.month, 1)
-    dEndDate = Date(dtEndDate.year, dtEndDate.month, 1)
+    dStartDate = Date(dtStartDate.year, dtStartDate.month, dtStartDate.day)
+    dEndDate = Date(dtEndDate.year, dtEndDate.month, dtEndDate.day)
 
     cal = Calendar(calendar)
     posAdjustDate = Schedule(dStartDate,
@@ -51,7 +51,7 @@ def getPosAdjDate(startDate, endDate, format="%Y-%m-%d", calendar='China.SSE', f
     # it fails if setting dStartDate to be first adjustment date, then use Schedule to compute the others
     # so i first compute dates list in each period, then compute the last date of each period
     # last day of that period(month) is the pos adjustment date
-    strPosAdjustDate = [str(cal.endOfMonth(date)) for date in posAdjustDate]
+    strPosAdjustDate = [str(cal.endOfMonth(date)) for date in posAdjustDate[:-1]]
 
     return strPosAdjustDate
 

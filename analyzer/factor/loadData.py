@@ -4,12 +4,17 @@ import cleanData
 import pandas as pd
 
 _factorPathDict ={
-    'NAV': ['..//..//data//factor//net_asset.csv', True], # 净资产
-    'ROE': ['..//..//data//factor//ROE.csv',True], # 净资产收益率
-    'PE': ['..//..//data//factor//PE_TTM.csv', True], # 市盈率
-    'TTM': ['..//..//data//factor//TTM.csv', True], # 销售毛利率
-    'CAP': ['..//..//data//factor//cap.csv', True], # 总市值
-    'RETURN': ['..//..//data//return//monthlyReturn.csv', False] #月度收益
+    'BPS': ['..//..//data//factor//BPS.csv', 'q'],  # 每股净资产
+    'OPR': ['..//..//data//factor//OperRev.csv', 'q'],  # 营业利润
+    'PRTYOY': ['..//..//data//factor//ProfitYoY.csv', 'q'],  # 净利润同比增长率
+    'TRN': ['..//..//data//factor//Turnover.csv', 'm'],  # 月度换手率
+    'ROEYOY': ['..//..//data//factor//RoeYoY.csv', 'q'],  # 净利润增长率（季度同比）
+    'NAV': ['..//..//data//factor//net_asset.csv', 'q'],  # 净资产
+    'ROE': ['..//..//data//factor//ROE.csv', 'q'],  # 净资产收益率
+    'PE': ['..//..//data//factor//PE_TTM.csv', 'm'],  # 市盈率
+    'TTM': ['..//..//data//factor//TTM.csv', 'q'],  # 销售毛利率
+    'CAP': ['..//..//data//factor//MktCap.csv', 'm'],  # 总市值
+    'RETURN': ['..//..//data//return//monthlyReturn.csv', 'm']  # 月度收益
 }
 
 
@@ -29,8 +34,8 @@ class FactorLoader(object):
         ret = pd.Series()
         for name in self.__factorNames:
             pathToUse = _factorPathDict[name][0]
-            needAdjDate = _factorPathDict[name][1]
-            if needAdjDate:
+            adjFrequency = _factorPathDict[name][1]
+            if adjFrequency == 'q':
                 factorRaw = cleanData.getUniverseSingleFactor(pathToUse)
                 factor = cleanData.adjustFactorDate(factorRaw, self.__startDate, self.__endDate)
             else:

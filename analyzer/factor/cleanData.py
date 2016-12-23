@@ -90,7 +90,7 @@ def adjustFactorDate(factorRaw, startDate, endDate, freq='m'):
     return ret
 
 
-def getMultiIndexData(multiIdxData, firstIdxName, firstIdxVal, secIdxName, secIdxVal):
+def getMultiIndexData(multiIdxData, firstIdxName, firstIdxVal, secIdxName=None, secIdxVal=None):
     """
     Args:
         multiIdxData: pd.Series, multi-index =[firstIdxName, secIdxName]
@@ -102,8 +102,14 @@ def getMultiIndexData(multiIdxData, firstIdxName, firstIdxVal, secIdxName, secId
     Returns: pd.Series, selected value with multi-index = [firstIdxName, secIdxName]
 
     """
-    data = multiIdxData.loc[multiIdxData.index.get_level_values(firstIdxName) == firstIdxVal]
-    data = data.loc[data.index.get_level_values(secIdxName).isin(secIdxVal)]
+    #PyFin.assert(..list str)
+    if isinstance(firstIdxVal, basestring):
+        firstIdxVal = [firstIdxVal]
+    data = multiIdxData.loc[multiIdxData.index.get_level_values(firstIdxName).isin(firstIdxVal)]
+    if secIdxName is not None:
+        if isinstance(secIdxVal, basestring):
+            secIdxVal = [secIdxVal]
+        data = data.loc[data.index.get_level_values(secIdxName).isin(secIdxVal)]
     return data
 
 

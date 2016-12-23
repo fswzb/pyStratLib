@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 import pandas as pd
 from PyFin.DateUtilities import Date
+from PyFin.Utilities import pyFinAssert
 
 from utils import dateutils
 
@@ -102,11 +103,14 @@ def getMultiIndexData(multiIdxData, firstIdxName, firstIdxVal, secIdxName=None, 
     Returns: pd.Series, selected value with multi-index = [firstIdxName, secIdxName]
 
     """
-    #PyFin.assert(..list str)
+    pyFinAssert(isinstance(firstIdxVal, basestring) or isinstance(firstIdxVal, list), TypeError,
+                "input first index value type must be str or list")
     if isinstance(firstIdxVal, basestring):
         firstIdxVal = [firstIdxVal]
     data = multiIdxData.loc[multiIdxData.index.get_level_values(firstIdxName).isin(firstIdxVal)]
     if secIdxName is not None:
+        pyFinAssert(isinstance(secIdxVal, basestring) or isinstance(secIdxVal, list), TypeError,
+                    "input second index value type must be str or list")
         if isinstance(secIdxVal, basestring):
             secIdxVal = [secIdxVal]
         data = data.loc[data.index.get_level_values(secIdxName).isin(secIdxVal)]

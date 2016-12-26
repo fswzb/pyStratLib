@@ -5,7 +5,7 @@ import cleanData
 from utils import dateutils
 
 _factorPathDict = {
-    'BPS': ['..//..//data//factor//BPS.csv', 'q'],  # 每股净资产,季度频率
+    'BPS': ['..//..//data//factor//BPS.csv', 'q'],  # 每股净资产,季度频率,
     'OPR': ['..//..//data//factor//OperRev.csv', 'q'],  # 营业利润,季度频率
     'PRTYOY': ['..//..//data//factor//ProfitYoY.csv', 'q'],  # 净利润同比增长率,季度频率
     'TRN': ['..//..//data//factor//Turnover.csv', 'm'],  # 月度换手率,月度频率
@@ -35,10 +35,10 @@ class FactorLoader(object):
         ret = pd.Series()
         for name in self.__factorNames:
             pathToUse = _factorPathDict[name][0]
-            adjFrequency = _factorPathDict[name][1]
-            if adjFrequency == self.__freq:
+            originalFreq = _factorPathDict[name][1]
+            if originalFreq <> self.__freq:
                 factorRaw = cleanData.getUniverseSingleFactor(pathToUse)
-                factor = cleanData.adjustFactorDate(factorRaw, self.__startDate, self.__endDate)
+                factor = cleanData.adjustFactorDate(factorRaw, self.__startDate, self.__endDate, self.__freq)
             else:
                 factorRaw = cleanData.getUniverseSingleFactor(pathToUse, IndexName=['tiaoCangDate', 'secID'])
                 factorRaw = factorRaw.loc[factorRaw.index.get_level_values('tiaoCangDate') >= self.__startDate]

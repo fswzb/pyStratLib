@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-#ref 动态情景多因子Alpha模型----因子选股系列研究之八
+#ref 动态情景多因子Alpha模型----因子选股系列研究之八，朱剑涛
 #ref https://uqer.io/community/share/57ff3f9e228e5b3658fac3ed
 import numpy as np
 import pandas as pd
@@ -97,7 +97,7 @@ class DCAMAnalyzer(object):
                       'K-S test'],
                      ['high','low','high','low','high','low','t','p_value','F','p_value','KS','p_value']]
         result.columns = pd.MultiIndex.from_tuples(zip(*np.arrays))
-        ret = pd.concat([result], axis=1, keys = [self.__layerFactor.name + '分层后因子表现     时间：' + self.__startDate + '--' + self.__endDate])
+        ret = pd.concat([result], axis=1, keys = [self.__layerFactor.name + '分层后因子表现     时间：' + self.__startDate + ' -- ' + self.__endDate])
         return ret
 
 

@@ -5,6 +5,7 @@ from PyFin.DateUtilities import Schedule
 from PyFin.DateUtilities import Period
 from PyFin.Enums import TimeUnits
 from PyFin.Enums import BizDayConventions
+from PyFin.Enums.Weekdays import Weekdays
 import datetime as dt
 
 _freqDict = {'d': TimeUnits.Days,
@@ -12,6 +13,7 @@ _freqDict = {'d': TimeUnits.Days,
               'w': TimeUnits.Weeks,
               'm': TimeUnits.Months,
               'y': TimeUnits.Years}
+
 
 def stringToDatetime(strDate, format="%Y-%m-%d"):
     """
@@ -23,6 +25,7 @@ def stringToDatetime(strDate, format="%Y-%m-%d"):
 
     """
     return dt.datetime.strptime(strDate, format)
+
 
 def getPosAdjDate(startDate, endDate, format="%Y-%m-%d", calendar='China.SSE', freq='m'):
     """
@@ -51,11 +54,15 @@ def getPosAdjDate(startDate, endDate, format="%Y-%m-%d", calendar='China.SSE', f
     # it fails if setting dStartDate to be first adjustment date, then use Schedule to compute the others
     # so i first compute dates list in each period, then compute the last date of each period
     # last day of that period(month) is the pos adjustment date
-    strPosAdjustDate = [str(cal.endOfMonth(date)) for date in posAdjustDate[:-1]]
+    if _freqDict[freq] == TimeUnits.Weeks:
+        strPosAdjustDate = [str(Date.nextWeekday(date, Weekdays.Friday)) for date in posAdjustDate[:-1]]
+    elif _freqDict[freq] == TimeUnits.Months:
+        strPosAdjustDate = [str(cal.endOfMonth(date)) for date in posAdjustDate[:-1]]
+    elif _freqDict[freq] == TimeUnits.Years:
+        strPosAdjustDate = [str(Date(date.year(), 12, 31)) for date in posAdjustDate[:-1]]
 
     return strPosAdjustDate
 
 
-
 if __name__ == "__main__":
-    print getPosAdjDate('2016-5-20','2016-12-20')
+    print getPosAdjDate('2013-5-20', '2016-12-20', freq='y')
